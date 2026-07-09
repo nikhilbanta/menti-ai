@@ -146,8 +146,12 @@ header h1 span{color:var(--accent)}
 </div>
 
 <script>
-const API_KEY = 'AQ.Ab8RN6Ii4m2-5gXOL1qWf-Ei12SvHWdvYmte80VBb2oQ8o7haA';
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+const API_KEYS = [
+  'AQ.Ab8RN6Ii4m2-5gXOL1qWf-Ei12SvHWdvYmte80VBb2oQ8o7haA',
+  'AQ.Ab8RN6La72rN_z74KwXExK9TIoboA8KH2AgP-hBMxqTk327vLw'
+];
+const API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+let currentKeyIndex = 0;
 
 const SYSTEM_PROMPT = `You are a quiz answer detector. Given a screenshot of a quiz question:
 1. Extract the question text exactly as shown
@@ -317,14 +321,15 @@ async function captureAndAnalyze() {
   }
 }
 
-async function callGemini(imageBase64) {
+async function callGeminiWithKey(imageBase64, apiKey) {
   const base64Data = imageBase64.split(',')[1];
+  const url = `${API_BASE}?key=${apiKey}`;
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000);
 
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -363,11 +368,24 @@ async function callGemini(imageBase64) {
     return parsed;
   } catch (err) {
     clearTimeout(timeout);
-    if (err.name === 'AbortError') {
-      throw new Error('Request timed out (10s)');
-    }
     throw err;
   }
+}
+
+async function callGemini(imageBase64) {
+  let lastError;
+  for (let i = 0; i < API_KEYS.length; i++) {
+    const keyIndex = (currentKeyIndex + i) % API_KEYS.length;
+    try {
+      const result = await callGeminiWithKey(imageBase64, API_KEYS[keyIndex]);
+      currentKeyIndex = keyIndex;
+      return result;
+    } catch (err) {
+      lastError = err;
+      console.warn(`Key ${keyIndex} failed, trying next...`);
+    }
+  }
+  throw lastError;
 }
 
 function displayResult(result) {
