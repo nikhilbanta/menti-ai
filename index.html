@@ -55,7 +55,7 @@ body{font-family:system-ui,sans-serif;background:#0a0a0a;color:#e2e8f0;min-heigh
 
 <script>
 const W='https://nik-de46.nikhilbanta.workers.dev';
-const P='Extract quiz question and options from this screenshot. Return JSON only:{"d":true,"q":"question","o":["A: ...","B: ...","C: ...","D: ..."],"a":"A","c":0.95,"r":"why"} or {"d":false}';
+const P='Look at this screenshot carefully. Find the QUIZ QUESTION only - ignore ads, menus, navigation, logos, timestamps, and any non-quiz content. A quiz question typically has: a question text at top, multiple choice options (A/B/C/D) below. Return JSON:{"d":true,"q":"the question text","o":["A: first option","B: second option","C: third option","D: fourth option"],"a":"A","c":0.9,"r":"brief reason"} or {"d":false}';
 let s=null,v=null,c,x,cap=false,auto=false,ai=null,ms=4000,proc=false;
 const hasGC=navigator.mediaDevices&&navigator.mediaDevices.getDisplayMedia;
 
