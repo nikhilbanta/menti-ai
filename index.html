@@ -119,23 +119,35 @@ const b=document.getElementById('mb');
 if(!auto){b.textContent='...';b.disabled=true}
 try{const img=cf();if(!img){se('No frame');return}
 ss('w','Analyzing...');
-document.getElementById('ra').innerHTML='<div class="ld"><div class="sp"></div>Analyzing screenshot...</div>';
+document.getElementById('ra').innerHTML='<div class="ld"><div class="sp"></div>Analyzing...</div>';
 const r=await cg(img);
-if(r&&r.d)dr(r);else if(!auto)document.getElementById('ra').innerHTML='<div style="padding:12px;color:#666;font-size:13px">No question detected</div>';
+if(r&&r.d)dr(r);else{
+if(!auto){se('No question visible. Make sure quiz is on screen.');document.getElementById('ra').innerHTML=''}
+}
 document.getElementById('lt').textContent=new Date().toLocaleTimeString();
-}catch(e){se('Error: '+e.message);ss('on','Ready')}
+}catch(e){se('Failed: '+e.message);ss('on','Ready');document.getElementById('ra').innerHTML=''}
 finally{proc=false;if(!auto){b.textContent='Capture Now';b.disabled=false}}}
 
 async function ck(img){
 const d=img.split(',')[1];
-const ab=new AbortController();const to=setTimeout(()=>ab.abort(),12000);
-try{const r=await fetch(W,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:P},{inlineData:{mimeType:'image/jpeg',data:d}}]}],generationConfig:{responseMimeType:'application/json',temperature:0.1}}),signal:ab.signal});
-clearTimeout(to);if(!r.ok)throw new Error('HTTP '+r.status);
-const j=await r.json();if(j.error)throw new Error(j.error.message);
-const t=j.candidates?.[0]?.content?.parts?.[0]?.text;if(!t)throw new Error('Empty');
-return JSON.parse(t)}catch(e){clearTimeout(to);throw e}}
+const controller=new AbortController();
+const timer=setTimeout(()=>controller.abort(),15000);
+try{
+const r=await fetch(W,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:P},{inlineData:{mimeType:'image/jpeg',data:d}}]}],generationConfig:{responseMimeType:'application/json',temperature:0.1}}),signal:controller.signal});
+clearTimeout(timer);
+if(!r.ok){const txt=await r.text();throw new Error('Server error '+r.status)}
+const j=await r.json();
+if(j.error)throw new Error(j.error.message||'API error');
+const t=j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts&&j.candidates[0].content.parts[0]&&j.candidates[0].content.parts[0].text;
+if(!t)throw new Error('No response from AI');
+try{return JSON.parse(t)}catch(pe){throw new Error('Invalid response format')}}
+catch(e){clearTimeout(timer);throw e}}
 
-async function cg(img){return ck(img)}
+async function cg(img){
+for(let i=0;i<2;i++){
+try{return await ck(img)}
+catch(e){if(i===1)throw e;await new Promise(r=>setTimeout(r,500))}}
+}
 
 function dr(r){
 const a=document.getElementById('ra');
