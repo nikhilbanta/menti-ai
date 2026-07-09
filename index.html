@@ -151,11 +151,10 @@ catch(e){if(i===1)throw e;await new Promise(r=>setTimeout(r,500))}}
 
 function dr(r){
 const a=document.getElementById('ra');
-const ci=r.a?.toUpperCase().charCodeAt(0)-65;
-const cp=Math.round((r.c||0)*100);
-let h='';
-if(r.o&&r.o.length)r.o.forEach((o,i)=>{h+=`<div class="opt${i===ci?' c':''}">${o}</div>`});
-a.innerHTML=`<div class="rc"><div class="qt">${esc(r.q||'Unknown')}</div><div class="opts">${h}</div><div class="mt"><span class="cf">${cp}%</span><span>${new Date().toLocaleTimeString()}</span></div></div>`}
+const ans=r.a||'?';
+const conf=Math.round((r.c||0)*100);
+const opt=r.o&&r.o.length?r.o.find(o=>o.startsWith(ans+':'))||r.o.find(o=>o.toUpperCase().startsWith(ans))||'':'';
+a.innerHTML=`<div class="rc" style="text-align:center;padding:20px"><div style="font-size:48px;font-weight:700;color:#22c55e">${esc(ans)}</div>${opt?'<div style="font-size:14px;color:#e2e8f0;margin-top:8px">'+esc(opt)+'</div>':''}<div style="font-size:12px;color:#666;margin-top:8px">${conf}% confidence</div></div>`}
 
 function ta(){auto=!auto;document.getElementById('at').classList.toggle('on',auto);auto?sa():clearInterval(ai)}
 function sa(){clearInterval(ai);ai=setInterval(()=>{if(cap&&!proc)ca()},ms);ca()}
