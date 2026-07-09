@@ -50,9 +50,7 @@ body{font-family:system-ui,sans-serif;background:#0a0a0a;color:#e2e8f0;min-heigh
 <div id="ra"></div>
 
 <script>
-const K=['AQ.Ab8RN6Ii4m2-5gXOL1qWf-Ei12SvHWdvYmte80VBb2oQ8o7haA','AQ.Ab8RN6La72rN_z74KwXExK9TIoboA8KH2AgP-hBMxqTk327vLw'];
-const B='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
-let ki=0;
+const W='https://nik-de46.nikhilbanta.workers.dev';
 const P='Extract quiz question and options from this screenshot. Return JSON only:{"d":true,"q":"question","o":["A: ...","B: ...","C: ...","D: ..."],"a":"A","c":0.95,"r":"why"} or {"d":false}';
 let s=null,v=null,c,x,cap=false,auto=false,ai=null,ms=4000,proc=false;
 
@@ -88,16 +86,16 @@ document.getElementById('lt').textContent=new Date().toLocaleTimeString();
 }catch(e){se('Error: '+e.message);ss('on','Ready')}
 finally{proc=false;if(!auto){b.textContent='Capture Now';b.disabled=false}}}
 
-async function ck(img,k){
-const d=img.split(',')[1],url=B+'?key='+k;
+async function ck(img){
+const d=img.split(',')[1];
 const ab=new AbortController();const to=setTimeout(()=>ab.abort(),8000);
-try{const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:P},{inlineData:{mimeType:'image/jpeg',data:d}}]}],generationConfig:{responseMimeType:'application/json',temperature:0.1}}),signal:ab.signal});
+try{const r=await fetch(W,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:P},{inlineData:{mimeType:'image/jpeg',data:d}}]}],generationConfig:{responseMimeType:'application/json',temperature:0.1}}),signal:ab.signal});
 clearTimeout(to);if(!r.ok)throw new Error('HTTP '+r.status);
 const j=await r.json();if(j.error)throw new Error(j.error.message);
 const t=j.candidates?.[0]?.content?.parts?.[0]?.text;if(!t)throw new Error('Empty');
 return JSON.parse(t)}catch(e){clearTimeout(to);throw e}}
 
-async function cg(img){let er;for(let i=0;i<K.length;i++){const idx=(ki+i)%K.length;try{const r=await ck(img,K[idx]);ki=idx;return r}catch(e){er=e}}throw er}
+async function cg(img){return ck(img)}
 
 function dr(r){
 const a=document.getElementById('ra');
