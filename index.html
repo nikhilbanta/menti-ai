@@ -47,7 +47,7 @@ body{font-family:system-ui,sans-serif;background:#0a0a0a;color:#e2e8f0;min-heigh
 <div class="er" id="eb"></div>
 <div class="pv" id="pv"><video id="vd" playsinline muted></video></div>
 <button class="btn b1" id="mb" onclick="hb()">Start Capture</button>
-<div id="up" style="display:none"><input type="file" accept="image/*" capture="environment" id="fi" onchange="fu(event)" style="display:none"><button class="btn b1" onclick="document.getElementById('fi').click()">Upload Screenshot</button></div>
+<div id="up" style="display:none"><input type="file" accept="image/*" id="fi" onchange="fu(event)" style="display:none"><button class="btn b2" onclick="document.getElementById('fi').click()">Upload Screenshot</button></div>
 <div id="ra"></div>
 
 <script>
@@ -59,7 +59,14 @@ const hasGC=navigator.mediaDevices&&navigator.mediaDevices.getDisplayMedia;
 function ss(t,e){document.getElementById('sd').className='sd '+t;document.getElementById('st').textContent=e}
 function se(m){const b=document.getElementById('eb');b.textContent=m;b.style.display='block';setTimeout(()=>b.style.display='none',4000)}
 
-function init(){if(!hasGC)document.getElementById('up').style.display='block'}
+function init(){
+if(hasGC){
+document.getElementById('mb').style.display='block';
+document.getElementById('up').style.display='none';
+}else{
+document.getElementById('mb').style.display='none';
+document.getElementById('up').style.display='block';
+}}
 
 async function hb(){if(!hasGC){document.getElementById('fi').click();return}cap?ca():sc()}
 
@@ -78,8 +85,10 @@ e.target.value='';
 }
 
 async function sc(){
-try{ss('w','Requesting...');
-s=await navigator.mediaDevices.getDisplayMedia({video:{displaySurface:'browser',width:{ideal:1280},height:{ideal:720}},audio:false});
+try{ss('w','Requesting screen...');
+const opts={video:{width:{ideal:1280},height:{ideal:720}},audio:false};
+if(navigator.userAgent.includes('Chrome'))opts.video.displaySurface='browser';
+s=await navigator.mediaDevices.getDisplayMedia(opts);
 v=document.getElementById('vd');v.srcObject=s;await v.play();
 c=document.createElement('canvas');c.width=v.videoWidth||1280;c.height=v.videoHeight||720;x=c.getContext('2d');
 cap=true;
